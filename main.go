@@ -1,7 +1,11 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
+	// "fmt"
+	"io"
 	"log"
 	"os"
 	"os/signal"
@@ -35,20 +39,47 @@ func main() {
 	}
 
 	// instantiate article query
-	articles := ArticleQuery{db: pool}
+	articles := NewArticleQuery(pool)
+	// comments := NewCommentQuery(pool)
 
-	// // add an article
+	// // // add an article
 	// article, err := articles.Add(ctx, Article{
 	// 	Title: "How to learn golang in 30 days ?",
 	// })
 	// if err != nil {
 	// 	log.Fatal(err)
 	// }
-	// fmt.Print(article)
-	if err := articles.Remove(ctx, 1); err != nil {
+	//
+	// err = comments.Add(ctx, Comment{
+	// 	Content: "Very interesting post",
+	// 	Article: article.ID,
+	// })
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	//
+	// err = comments.Add(ctx, Comment{
+	// 	Content: "Nicely done",
+	// 	Article: article.ID,
+	// })
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	//
+	artciles, err := articles.ListWithComments(ctx)
+	if err != nil {
 		log.Fatal(err)
 	}
-	if _, err := articles.GetById(ctx, 1); err != nil {
-		log.Fatal(err)
+
+	JSONResponse(os.Stdout, artciles)
+}
+
+func JSONResponse(w io.Writer, data any) error {
+	var buf bytes.Buffer
+	enc := json.NewEncoder(&buf)
+	if err := enc.Encode(data); err != nil {
+		return err
 	}
+	io.Copy(w, &buf)
+	return nil
 }

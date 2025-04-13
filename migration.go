@@ -19,12 +19,12 @@ func CreateTables(ctx context.Context, pool *sql.DB) error {
 
 	CREATE TABLE IF NOT EXISTS comments (
 		id INTEGER PRIMARY KEY AUTOINCREMENT,
-		article_id INTEGER
+		article_id INTEGER,
 		content TEXT NULL,
 		author VARCHAR(50) NULL,
 		created DATETIME DEFAULT CURRENT_TIMESTAMP,
 		updated DATETIME DEFAULT CURRENT_TIMESTAMP,
-		FOREIGN KEY(article_id) REFERENCES articles(id)
+		FOREIGN KEY(article_id) REFERENCES articles(id) ON DELETE CASCADE
 	);
 
 	CREATE TRIGGER IF NOT EXISTS update_articles_updated
