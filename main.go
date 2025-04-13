@@ -4,21 +4,31 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	// "fmt"
+	"flag"
 	"io"
 	"log"
 	"os"
 	"os/signal"
 )
 
-var DataSource = "articles.db"
-
 func main() {
+
+	// parse command line arguments
+	var dataSource string
+	flag.StringVar(&dataSource, "datsource", "", "SQLite datasource")
+	flag.StringVar(&dataSource, "d", "", "SQLite datasource")
+	flag.Parse()
+
+	if dataSource == "" {
+		log.Fatal("")
+	}
+
 	// connection establishment
 	sigChan := make(chan os.Signal, 3)
 	signal.Notify(sigChan, os.Interrupt, os.Kill)
 
 	ctx, cancel := context.WithCancel(context.Background())
+
 	// cancel the context on system interrupt signal
 	// reception
 	go func() {
@@ -27,7 +37,7 @@ func main() {
 	}()
 
 	// get a connection pool
-	pool, err := InitDB(ctx, "sqlite3", DataSource)
+	pool, err := InitDB(ctx, "sqlite3", dataSource)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -38,7 +48,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// instantiate article query
+	// instantiate queries
 	articles := NewArticleQuery(pool)
 	// comments := NewCommentQuery(pool)
 

@@ -32,7 +32,7 @@ func Ping(ctx context.Context, pool *sql.DB, datasource string) error {
 	ctx, cancel := context.WithTimeout(ctx, 5*time.Second)
 	defer cancel()
 	if err := pool.PingContext(ctx); err != nil {
-		return fmt.Errorf("Unable to use datsource %v: %v", DataSource, err)
+		return fmt.Errorf("Unable to use datsource %v: %v", datasource, err)
 	}
 	return nil
 }
