@@ -22,7 +22,15 @@ func main() {
 		cancel()
 	}()
 
-	if err := InitDB(ctx, "sqlite3", DataSource); err != nil {
+	// Get a connection pool
+	pool, err := InitDB(ctx, "sqlite3", DataSource)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer pool.Close()
+
+	// migrate tables
+	if err := CreateTables(ctx, pool); err != nil {
 		log.Fatal(err)
 	}
 }

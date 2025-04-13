@@ -1,7 +1,7 @@
 package main
 
 import (
-	"context" 
+	"context"
 	"database/sql"
 	"fmt"
 	"time"
@@ -9,13 +9,11 @@ import (
 	_ "github.com/mattn/go-sqlite3"
 )
 
-
-func InitDB(ctx context.Context, driver string, datasource string) error {
+func InitDB(ctx context.Context, driver string, datasource string) (*sql.DB, error) {
 	pool, err := sql.Open(driver, datasource)
 	if err != nil {
-		return fmt.Errorf("Unable to use datsource %v: %v", datasource, err)
+		return nil, fmt.Errorf("Unable to use datsource %v: %v", datasource, err)
 	}
-	defer pool.Close()
 
 	// Optionally configuring the pool
 	pool.SetConnMaxLifetime(0)
@@ -24,10 +22,10 @@ func InitDB(ctx context.Context, driver string, datasource string) error {
 
 	// Ping the datasource to make sure everything it is available
 	if err := Ping(ctx, pool, datasource); err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return pool, nil
 }
 
 func Ping(ctx context.Context, pool *sql.DB, datasource string) error {

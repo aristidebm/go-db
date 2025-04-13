@@ -1,4 +1,4 @@
-.PHONY: migrate run format install
+.PHONY: migrate run format install dbshell
 
 run:
 	@go run .
@@ -9,5 +9,9 @@ migrate:
 format:
 	@go fmt ./...
 
+
 install:
 	@go mod tidy
+
+dbshell:
+	@sqlite3 -table articles.db
