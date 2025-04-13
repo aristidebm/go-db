@@ -1,7 +1,7 @@
 .PHONY: migrate run format install
 
 run:
-	@go run main.go
+	@go run .
 
 migrate:
 	@go run scripts/migrate.go
