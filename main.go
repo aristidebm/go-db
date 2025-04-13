@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -15,14 +16,14 @@ func main() {
 	signal.Notify(sigChan, os.Interrupt, os.Kill)
 
 	ctx, cancel := context.WithCancel(context.Background())
-	// Cancel the context on system interrupt signal
+	// cancel the context on system interrupt signal
 	// reception
 	go func() {
 		<-sigChan
 		cancel()
 	}()
 
-	// Get a connection pool
+	// get a connection pool
 	pool, err := InitDB(ctx, "sqlite3", DataSource)
 	if err != nil {
 		log.Fatal(err)
@@ -33,4 +34,16 @@ func main() {
 	if err := CreateTables(ctx, pool); err != nil {
 		log.Fatal(err)
 	}
+
+	// instantiate article query
+	articles := ArticleQuery{db: pool}
+	article, err := articles.Add(ctx, Article{
+		Title: "How to learn golang in 30 days ?",
+	})
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Print(article)
 }
