@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"log"
 	"os"
 	"os/signal"
@@ -37,13 +36,19 @@ func main() {
 
 	// instantiate article query
 	articles := ArticleQuery{db: pool}
-	article, err := articles.Add(ctx, Article{
-		Title: "How to learn golang in 30 days ?",
-	})
 
-	if err != nil {
+	// // add an article
+	// article, err := articles.Add(ctx, Article{
+	// 	Title: "How to learn golang in 30 days ?",
+	// })
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// fmt.Print(article)
+	if err := articles.Remove(ctx, 1); err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Print(article)
+	if _, err := articles.GetById(ctx, 1); err != nil {
+		log.Fatal(err)
+	}
 }
