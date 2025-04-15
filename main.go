@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"flag"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -49,8 +50,8 @@ func main() {
 	}
 
 	// instantiate queries
-	articles := NewArticleQuery(pool)
-	// comments := NewCommentQuery(pool)
+	// articles := NewArticleQuery(pool)
+	comments := NewCommentQuery(pool)
 
 	// // // add an article
 	// article, err := articles.Add(ctx, Article{
@@ -76,12 +77,21 @@ func main() {
 	// 	log.Fatal(err)
 	// }
 	//
-	artciles, err := articles.ListWithComments(ctx)
+	// artciles, err := articles.ListWithComments(ctx)
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+
+	// JSONResponse(os.Stdout, artciles)
+
+	// results, err := comments.Filter(ctx, WithLimit(1))
+	results, err := comments.Filter(ctx, WithLimit(2), WithArticleId(100))
 	if err != nil {
-		log.Fatal(err)
+		log.Fatal("cannot return a result")
 	}
 
-	JSONResponse(os.Stdout, artciles)
+	fmt.Print(results)
+
 }
 
 func JSONResponse(w io.Writer, data any) error {

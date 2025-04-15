@@ -6,6 +6,11 @@ import (
 	"errors"
 	"fmt"
 	"strings"
+
+	"example/db/gen/entity"
+	"example/db/gen/table"
+
+	"github.com/go-jet/jet/v2/sqlite"
 )
 
 type CommentQuery struct {
@@ -216,4 +221,60 @@ func (q *CommentQuery) Exists(ctx context.Context, id int) (bool, error) {
 	}
 
 	return exists, nil
+}
+
+type filterOption struct {
+	limit     int
+	offset    int
+	articleId int
+	name      string
+}
+
+type FilterOption func(option *filterOption)
+
+func WithLimit(limit int) FilterOption {
+	return func(option *filterOption) {
+		option.limit = limit
+	}
+}
+
+func WithOffset(offset int) FilterOption {
+	return func(option *filterOption) {
+		option.offset = offset
+	}
+}
+
+func WithArticleId(articleId int) FilterOption {
+	return func(option *filterOption) {
+		option.articleId = articleId
+	}
+}
+
+func (q *CommentQuery) Filter(ctx context.Context, options ...FilterOption) ([]entity.Comments, error) {
+	option := &filterOption{}
+	for _, fn := range options {
+		fn(option)
+	}
+	fmt.Print(option)
+
+	stmt := sqlite.SELECT(table.Comments.AllColumns).FROM(table.Comments)
+
+	if option.limit != 0 {
+		stmt = stmt.LIMIT(int64(option.limit))
+	}
+
+	if option.offset != 0 {
+		stmt = stmt.OFFSET(int64(option.offset))
+	}
+
+	if option.articleId != 0 {
+		stmt = stmt.WHERE(table.Comments.ArticleID.EQ(sqlite.Int64(int64(option.articleId))))
+	}
+
+	comments := []entity.Comments{}
+	if err := stmt.QueryContext(ctx, q.db, &comments); err != nil {
+		return nil, err
+	}
+	fmt.Printf("%#+v", comments)
+	return comments, nil
 }

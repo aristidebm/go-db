@@ -1,7 +1,7 @@
-.PHONY: migrate run format install dbshell
+.PHONY: migrate run format install dbshell generate
 
-run:
-	@go run .
+run: build
+	@./dist/db -d articles.db
 
 migrate:
 	@go run scripts/migrate.go
@@ -17,3 +17,7 @@ dbshell:
 
 build:
 	@go build -o dist/ 
+
+generate:
+	@go tool jet -source=sqlite -dsn="./articles.db" -path=./gen -rel-model-path=./entity
+
